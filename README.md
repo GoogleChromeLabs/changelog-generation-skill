@@ -17,8 +17,7 @@ An [agent skill](https://agentskills.io/home#what-are-agent-skills) that provide
 You can install this skill directly from the latest GitHub release. The examples below assume the use of Gemini CLI.
 
 ```bash
-gemini skills install https://github.com/GoogleChromeLabs/
-changelog-generation-skill/releases/latest/download/changelog-generation.skill --scope user
+gemini skills install https://github.com/GoogleChromeLabs/changelog-generation-skill --scope user
 ```
 
 After installing, verify the skill and reload your Gemini CLI:
