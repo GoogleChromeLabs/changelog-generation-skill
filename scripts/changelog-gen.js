@@ -60,7 +60,7 @@ async function getChromiumCommits(milestone, prevMilestone, subproject) {
   const dateStart = await getCommitDate(hashStart);
   const dateEnd = await getCommitDate(hashEnd);
 
-  const path = SUBPROJECT_MAP[subproject] || subproject;
+  const path = SUBPROJECT_MAP.get(subproject) || subproject;
   console.error(`Fetching logs for path: ${path}`);
   const logUrl = `https://chromium.googlesource.com/chromium/src/+log/${hashStart}..${hashEnd}/${path}?format=JSON`;
   let pathCommits = [];
@@ -149,11 +149,11 @@ async function getGitHubCommits(repo, base, head) {
   }));
 }
 
-const SUBPROJECT_MAP = {
-  'chromedriver': 'chrome/test/chromedriver',
-  'headless': 'headless',
-  'new-headless': 'chrome/browser/headless'
-};
+const SUBPROJECT_MAP = new Map([
+  ['chromedriver', 'chrome/test/chromedriver'],
+  ['chrome-headless-shell', 'headless'],
+  ['chrome-headless', 'chrome/browser/headless'],
+]);
 
 async function main() {
   const args = process.argv.slice(2);
@@ -164,7 +164,7 @@ async function main() {
       const milestone = parseInt(args[1]);
       const subproject = args[2] || 'chromedriver';
       const prevMilestone = milestone - 1;
-      const path = SUBPROJECT_MAP[subproject] || subproject;
+      const path = SUBPROJECT_MAP.get(subproject) || subproject;
 
       const commits = await getChromiumCommits(milestone, prevMilestone, path);
       console.log(JSON.stringify(commits, null, 2));
