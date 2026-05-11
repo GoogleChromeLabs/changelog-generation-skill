@@ -16,7 +16,7 @@ When a user asks for a changelog for a Chromium project (e.g., "chromedriver M14
     ```bash
     node scripts/changelog-gen.js chromium <milestone> <subproject>
     ```
-    *Supported subprojects*: `chromedriver`, `headless`, `new-headless`. You can also pass a raw Chromium path if known.
+    *Supported subprojects*: `chromedriver`, `chrome-headless-shell`, `chrome-headless`. You can also pass a raw Chromium path if known.
 3.  **Process the Output**: The script returns a JSON array of commits.
 4.  **Summarize**:
     *   Group changes into "New Features", "Bug Fixes", and "Other Changes".
