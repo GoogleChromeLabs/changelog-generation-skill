@@ -19,7 +19,7 @@ When a user asks for a changelog for a Chromium project (e.g., "chromedriver M14
     *Supported subprojects*: `chromedriver`, `chrome-headless-shell`, `chrome-headless`. You can also pass a raw Chromium path if known.
 3.  **Process the Output**: The script returns a JSON array of commits.
 4.  **Summarize**:
-    *   Group changes into "New Features", "Bug Fixes", and "Other Changes".
+    *   Group changes into "New features", "Bug fixes", and "Other changes".
     *   Look for `Bug: <id>` or `Fixed: <id>` in the commit messages to identify fixes.
     *   Ignore "reland", "revert", or "cleanup" commits unless they contain significant information.
     *   Provide a concise, bulleted list.
@@ -35,13 +35,13 @@ When a user asks for a changelog for a GitHub repository (e.g., "changelog for g
     *   Similar to Chromium, but use standard GitHub conventional commit patterns (if present) to categorize.
 
 ## Summarization Guidelines
-*   **Deep Analysis**: Read the **full commit message** (including the body) from the JSON output to genuinely understand what the commit does and its impact. Do not rely solely on the first line (the commit title), as it is often misleading or too technical.
-*   **Relevance Classification**: Evaluate each commit to determine if it is genuinely relevant to the requested subproject (e.g., `chromedriver` or `headless`).
+*   **Deep analysis**: Read the **full commit message** (including the body) from the JSON output to genuinely understand what the commit does and its impact. Do not rely solely on the first line (the commit title), as it is often misleading or too technical.
+*   **Relevance classification**: Evaluate each commit to determine if it is genuinely relevant to the requested subproject (e.g., `chromedriver` or `chrome-headless-shell`).
     *   *Relevant*: Modifies the tool's core functionality, fixes a bug specific to the tool, or has a commit message prefix for the tool (e.g., `[chromedriver]`).
     *   *Internal/Refactor*: Codebase-wide refactorings (e.g., IWYU fixes, renaming variables, C++ feature updates, widespread spanification, updating `constexpr`, mechanical namespace changes, OWNER adjustments) that happen to touch the tool's directory, or commits that merely mention the tool in passing.
-*   **Categorization**: Group *Relevant* changes into "New Features", "Bug Fixes", and "Other Changes". Group all *Internal/Refactor* changes into a separate "Internal changes and refactors" section. Sort most complex, most lines of code, or bigger features and bugfixes first.
-*   **Grouping and Consolidation**: Identify commits that are part of the same logical change (e.g., multiple commits for a single feature or related fixes for the same component). Combine these into a single, cohesive bullet point that describes the overall impact. This is more human-readable than listing every individual commit.
-*   **Rewrite for the User**: Rewrite the commit message (or group of messages) into a clear, understandable, 1-sentence bullet point describing the impact for the end-user. 
+*   **Categorization**: Group *Relevant* changes into "New features", "Bug fixes", and "Other changes". Group all *Internal/refactor* changes into a separate "Internal changes and refactors" section. Sort most complex, most lines of code, or bigger features and bugfixes first. For headings, prefer sentence case: e.g. "New features", "Bug fixes", etc.
+*   **Grouping and consolidation**: Identify commits that are part of the same logical change (e.g., multiple commits for a single feature or related fixes for the same component). Combine these into a single, cohesive bullet point that describes the overall impact. This is more human-readable than listing every individual commit.
+*   **Rewrite for the user**: Rewrite the commit message (or group of messages) into a clear, understandable, 1-sentence bullet point describing the impact for the end-user. 
     *   *Example:* Instead of *"Wait until a Tab can complete an MPArch activation"*, write *"Improved tab handling to wait for complete MPArch activation during navigation."*
     *   *Example:* Instead of *"Fix the crash due to improper truncation..."*, write *"Fixed a crash that occurred when log strings were improperly truncated."*
 *   **Be Concise**: Use one bullet point per logical change. If multiple commits are combined, include all relevant PR/commit links and bug IDs in the same bullet point.
@@ -55,11 +55,11 @@ When a user asks for a changelog for a GitHub repository (e.g., "changelog for g
 
 ## Example Output Format
 ```markdown
-### New Features
+### New features
 - **[Component]**: Brief description of a single-commit feature ([crrev.com/c/12345](https://crrev.com/c/12345)).
 - **[Component]**: Combined description of a feature implemented across multiple commits ([#14826](https://github.com/puppeteer/puppeteer/pull/14826), [#14827](https://github.com/puppeteer/puppeteer/pull/14827)).<sup>v22.1.0-alpha</sup>
 
-### Bug Fixes
+### Bug fixes
 - **[Component]**: Fixed an issue where... ([crrev.com/c/67890](https://crrev.com/c/67890), [Bug: 1234](https://crbug.com/1234)).
 - **[Component]**: Addressed several issues related to X ([#123](https://github.com/owner/repo/pull/123), [#124](https://github.com/owner/repo/pull/124)).
 ```
