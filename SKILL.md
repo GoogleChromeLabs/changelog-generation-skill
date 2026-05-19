@@ -35,8 +35,8 @@ When a user asks for a changelog for a GitHub repository (e.g., "changelog for g
     *   Similar to Chromium, but use standard GitHub conventional commit patterns (if present) to categorize.
 
 ## Summarization Guidelines
-*   **Deep Analysis**: Read the **full commit message** (including the body) from the JSON output to genuinely understand what the commit does and its impact. Do not rely solely on the first line (the commit title), as it is often misleading or too technical.
-*   **Relevance Classification**: Evaluate each commit to determine if it is genuinely relevant to the requested subproject (e.g., `chromedriver` or `headless`).
+*   **Deep analysis**: Read the **full commit message** (including the body) from the JSON output to genuinely understand what the commit does and its impact. Do not rely solely on the first line (the commit title), as it is often misleading or too technical.
+*   **Relevance classification**: Evaluate each commit to determine if it is genuinely relevant to the requested subproject (e.g., `chromedriver` or `chrome-headless-shell`).
     *   *Relevant*: Modifies the tool's core functionality, fixes a bug specific to the tool, or has a commit message prefix for the tool (e.g., `[chromedriver]`).
     *   *Internal/Refactor*: Codebase-wide refactorings (e.g., IWYU fixes, renaming variables, C++ feature updates, widespread spanification, updating `constexpr`, mechanical namespace changes, OWNER adjustments) that happen to touch the tool's directory, or commits that merely mention the tool in passing.
 *   **Categorization**: Group *Relevant* changes into "New features", "Bug fixes", and "Other changes". Group all *Internal/refactor* changes into a separate "Internal changes and refactors" section. Sort most complex, most lines of code, or bigger features and bugfixes first. For headings, prefer sentence case: e.g. "New features", "Bug fixes", etc.
