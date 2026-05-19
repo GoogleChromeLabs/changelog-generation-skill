@@ -61,22 +61,19 @@ async function getChromiumCommits(milestone, prevMilestone, subproject) {
   const dateEnd = await getCommitDate(hashEnd);
 
   const path = SUBPROJECT_MAP.get(subproject) || subproject;
-  console.error(`Fetching logs for path: ${path}`);
-  const logUrl = `https://chromium.googlesource.com/chromium/src/+log/${hashStart}..${hashEnd}/${path}?format=JSON`;
-  let pathCommits = [];
+  console.error(`Searching Gerrit for path (${path}) and keyword (${subproject})...`);
+  const query = `project:chromium/src branch:main (message:${subproject} OR dir:${path}) after:"${dateStart}" before:"${dateEnd}" status:merged`;
+  const searchUrl = `https://chromium-review.googlesource.com/changes/?q=${encodeURIComponent(query)}&o=CURRENT_REVISION`;
+  
+  let searchData = [];
   try {
-    const logData = await fetchJson(logUrl);
-    pathCommits = logData.log || [];
+    searchData = await fetchJson(searchUrl);
   } catch (e) {
-    console.error(`No commits found for path ${path}`);
+    console.error(`Gerrit search failed: ${e.message}`);
   }
 
-  // Message-based search
-  console.error(`Searching Gerrit for keyword: ${subproject}`);
-  const searchUrl = `https://chromium-review.googlesource.com/changes/?q=project:chromium/src+branch:main+message:${subproject}+after:"${dateStart}"+before:"${dateEnd}"&o=CURRENT_REVISION`;
-  const searchData = await fetchJson(searchUrl);
-
   // Map Gerrit results to our commit format
+  const finalCommitsMap = new Map();
   const searchCommits = searchData.map(c => ({
     commit: c.current_revision,
     message: c.subject,
@@ -84,44 +81,24 @@ async function getChromiumCommits(milestone, prevMilestone, subproject) {
     is_from_search: true
   })).filter(c => c.commit);
 
-  // Deduplicate and merge
-  const allCommitsMap = new Map();
-  pathCommits.forEach(c => allCommitsMap.set(c.commit, c));
-
   for (const sc of searchCommits) {
-    if (!allCommitsMap.has(sc.commit)) {
-      // Fetch full commit message for search results as Gerrit search returns truncated subjects
-      console.error(`Fetching full message for search result: ${sc.commit}`);
-      try {
-        const fullLog = await fetchJson(`https://chromium.googlesource.com/chromium/src/+log/${sc.commit}?n=1&format=JSON`);
-        const fullCommit = fullLog.log[0];
-        fullCommit.review_number = sc.review_number;
-        allCommitsMap.set(sc.commit, fullCommit);
-      } catch (e) {
-        console.error(`Failed to fetch full commit for ${sc.commit}`);
-      }
-    } else {
-      // Ensure path commits have the review number
-      allCommitsMap.get(sc.commit).review_number = sc.review_number;
+    // Fetch full commit message for Gerrit results as search returns truncated subjects
+    console.error(`Fetching full message for: ${sc.commit}`);
+    try {
+      const fullLog = await fetchJson(`https://chromium.googlesource.com/chromium/src/+log/${sc.commit}?n=1&format=JSON`);
+      const fullCommit = fullLog.log[0];
+      fullCommit.review_number = sc.review_number;
+      finalCommitsMap.set(sc.commit, fullCommit);
+    } catch (e) {
+      console.error(`Failed to fetch full commit for ${sc.commit}: ${e.message}`);
     }
   }
 
-  const finalCommits = Array.from(allCommitsMap.values());
+  const finalCommits = Array.from(finalCommitsMap.values());
 
-  // Fetch Gerrit Change Numbers for any path-only commits that missed the search
-  console.error(`Ensuring all ${finalCommits.length} commits have review numbers and landed versions...`);
+  // Ensure all commits have landed versions
+  console.error(`Ensuring all ${finalCommits.length} commits have landed versions...`);
   for (const commit of finalCommits) {
-    if (!commit.review_number) {
-      try {
-        const changeUrl = `https://chromium-review.googlesource.com/changes/?q=commit:${commit.commit}`;
-        const changeData = await fetchJson(changeUrl);
-        if (changeData && changeData.length > 0) {
-          commit.review_number = changeData[0]._number;
-        }
-      } catch (e) {
-        // Ignore errors
-      }
-    }
     try {
       const dashUrl = `https://chromiumdash.appspot.com/fetch_commit?commit=${commit.commit}`;
       const dashData = await fetchJson(dashUrl);
@@ -164,9 +141,8 @@ async function main() {
       const milestone = parseInt(args[1]);
       const subproject = args[2] || 'chromedriver';
       const prevMilestone = milestone - 1;
-      const path = SUBPROJECT_MAP.get(subproject) || subproject;
 
-      const commits = await getChromiumCommits(milestone, prevMilestone, path);
+      const commits = await getChromiumCommits(milestone, prevMilestone, subproject);
       console.log(JSON.stringify(commits, null, 2));
     } else if (mode === 'github') {
       const repo = args[1];
